@@ -14,7 +14,33 @@ namespace mogl {
 		}
 	};
 
-	enum class ClearFlags {
+	class Viewport {
+		GLint x;
+		GLint y;
+		GLsizei width;
+		GLsizei height;
+	public:
+		constexpr Viewport() 
+			: x{ 0 }, y{ 0 }, width{ 0 }, height{ 0 } {
+		}
+		constexpr Viewport(GLsizei width, GLsizei height) 
+			: x{ 0 }, y{ 0 }, width{ width }, height{ height } {
+		}
+		constexpr Viewport(GLint x, GLint y, GLsizei width, GLsizei height) 
+			: x{ x }, y{ y }, width{ width }, height{ height } {
+		}
+
+		constexpr auto getX() const { return x; }
+		constexpr auto getY() const { return y; }
+		constexpr auto getWidth() const { return width; }
+		constexpr auto getHeight() const { return height; }
+
+		constexpr GLfloat getAspectRatio() const {
+			return static_cast<GLfloat>(width) / height;
+		}
+	};
+
+	enum class ClearFlags : GLbitfield {
 		ColorBuffer = GL_COLOR_BUFFER_BIT,
 		DepthBuffer = GL_DEPTH_BUFFER_BIT,
 #ifdef GL_ACCUM_BUFFER_BIT
@@ -24,14 +50,14 @@ namespace mogl {
 	};
 
 	inline ClearFlags operator|(ClearFlags left, ClearFlags right) {
-		typedef std::underlying_type<ClearFlags>::type type;
-		auto combined = static_cast<type>(left) | static_cast<type>(left);
+		typedef std::underlying_type<ClearFlags>::type enumType;
+		auto combined = static_cast<enumType>(left) | static_cast<enumType>(right);
 		return static_cast<ClearFlags>(combined);
 	}
 
 	inline ClearFlags operator&(ClearFlags left, ClearFlags right) {
 		typedef std::underlying_type<ClearFlags>::type type;
-		auto combined = static_cast<type>(left) & static_cast<type>(left);
+		auto combined = static_cast<type>(left) & static_cast<type>(right);
 		return static_cast<ClearFlags>(combined);
 	}
 

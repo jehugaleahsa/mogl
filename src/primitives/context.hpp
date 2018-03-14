@@ -90,8 +90,14 @@ namespace mogl {
 				glDrawElements(elementTypeValue, size, indiceTypeValue, indices);
 			}
 
-			void setViewport(GLint x, GLint y, GLsizei width, GLsizei height) {
-				glViewport(x, y, width, height);
+			void setViewport(Viewport viewPort) {
+				glViewport(viewPort.getX(), viewPort.getY(), viewPort.getWidth(), viewPort.getHeight());
+			}
+
+			Viewport getViewport() {
+				GLint coordinates[4];
+				glGetIntegerv(GL_VIEWPORT, coordinates);
+				return mogl::Viewport(coordinates[0], coordinates[1], coordinates[2], coordinates[3]);
 			}
 
 		} // context
