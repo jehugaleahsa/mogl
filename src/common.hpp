@@ -1,5 +1,8 @@
+#pragma once
 #ifndef MOGL_COMMON_HPP
 #define MOGL_COMMON_HPP
+
+#include <glad/glad.h>  // FIXME: comment this out
 
 #include <type_traits>
 #include <stdexcept>
@@ -20,13 +23,13 @@ namespace mogl {
 		GLsizei width;
 		GLsizei height;
 	public:
-		constexpr Viewport() 
+		constexpr Viewport()
 			: x{ 0 }, y{ 0 }, width{ 0 }, height{ 0 } {
 		}
-		constexpr Viewport(GLsizei width, GLsizei height) 
+		constexpr Viewport(GLsizei width, GLsizei height)
 			: x{ 0 }, y{ 0 }, width{ width }, height{ height } {
 		}
-		constexpr Viewport(GLint x, GLint y, GLsizei width, GLsizei height) 
+		constexpr Viewport(GLint x, GLint y, GLsizei width, GLsizei height)
 			: x{ x }, y{ y }, width{ width }, height{ height } {
 		}
 
@@ -40,6 +43,46 @@ namespace mogl {
 		}
 	};
 
+	template <typename T>
+	class Range {
+		T min;
+		T max;
+	public:
+		constexpr Range(T min, T max) : min{ min }, max{ max } {}
+
+		constexpr T getMin() const {
+			return min;
+		}
+
+		constexpr T getMax() const {
+			return max;
+		}
+	};
+
+	class Color {
+		GLfloat red;
+		GLfloat green;
+		GLfloat blue;
+		GLfloat alpha;
+	public:
+		constexpr Color(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha = 1.0f)
+			: red{ red }, green{ green }, blue{ blue }, alpha{ alpha } {
+		}
+
+		constexpr auto getRed() const {
+			return red;
+		}
+		constexpr auto getGreen() const {
+			return green;
+		}
+		constexpr auto getBlue() const {
+			return blue;
+		}
+		constexpr auto getAlpha() const {
+			return alpha;
+		}
+	};
+
 	enum class ClearFlags : GLbitfield {
 		ColorBuffer = GL_COLOR_BUFFER_BIT,
 		DepthBuffer = GL_DEPTH_BUFFER_BIT,
@@ -49,24 +92,22 @@ namespace mogl {
 		StencilBuffer = GL_STENCIL_BUFFER_BIT
 	};
 
-	inline ClearFlags operator|(ClearFlags left, ClearFlags right) {
-		typedef std::underlying_type<ClearFlags>::type enumType;
-		auto combined = static_cast<enumType>(left) | static_cast<enumType>(right);
+	constexpr ClearFlags operator|(ClearFlags left, ClearFlags right) {
+		auto combined = static_cast<GLbitfield>(left) | static_cast<GLbitfield>(right);
 		return static_cast<ClearFlags>(combined);
 	}
 
-	inline ClearFlags operator&(ClearFlags left, ClearFlags right) {
-		typedef std::underlying_type<ClearFlags>::type type;
-		auto combined = static_cast<type>(left) & static_cast<type>(right);
+	constexpr ClearFlags operator&(ClearFlags left, ClearFlags right) {
+		auto combined = static_cast<GLbitfield>(left) & static_cast<GLbitfield>(right);
 		return static_cast<ClearFlags>(combined);
 	}
 
-	inline ClearFlags& operator|=(ClearFlags & left, ClearFlags right) {
+	constexpr ClearFlags& operator|=(ClearFlags & left, ClearFlags right) {
 		left = left | right;
 		return left;
 	}
 
-	inline ClearFlags& operator&=(ClearFlags & left, ClearFlags right) {
+	constexpr ClearFlags& operator&=(ClearFlags & left, ClearFlags right) {
 		left = left & right;
 		return left;
 	}
@@ -77,12 +118,12 @@ namespace mogl {
 		FrontAndBack = GL_FRONT_AND_BACK
 	};
 
-	enum class PolygonMode {
+	enum class PolygonMode : GLenum {
 		Fill = GL_FILL,
 		Line = GL_LINE
 	};
 
-	enum class Capability {
+	enum class Capability : GLenum {
 		Blend = GL_BLEND,
 		ClipDistance0 = GL_CLIP_DISTANCE0,
 		ClipDistance1 = GL_CLIP_DISTANCE1,
@@ -117,7 +158,7 @@ namespace mogl {
 		TextureCubeMapSeamless = GL_TEXTURE_CUBE_MAP_SEAMLESS
 	};
 
-	enum class DepthFunction {
+	enum class DepthFunction : GLenum {
 		Never = GL_NEVER,
 		Less = GL_LESS,
 		Equal = GL_EQUAL,
@@ -128,7 +169,7 @@ namespace mogl {
 		Always = GL_ALWAYS
 	};
 
-	enum class BlendScaleFactor {
+	enum class BlendScaleFactor : GLenum {
 		Zero = GL_ZERO,
 		One = GL_ONE,
 		SourceColor = GL_SRC_COLOR,
@@ -150,7 +191,7 @@ namespace mogl {
 		OneMinusSource1Alpha = GL_ONE_MINUS_SRC1_ALPHA
 	};
 
-	enum class PropertyType {
+	enum class PropertyType : GLenum {
 		Vendor = GL_VENDOR,
 		Renderer = GL_RENDERER,
 		Version = GL_VERSION,
@@ -158,7 +199,7 @@ namespace mogl {
 		Extensions = GL_EXTENSIONS
 	};
 
-	enum class ErrorType {
+	enum class ErrorType : GLenum {
 		NoError = GL_NO_ERROR,
 		InvalidEnum = GL_INVALID_ENUM,
 		InvalidValue = GL_INVALID_VALUE,
@@ -169,7 +210,7 @@ namespace mogl {
 		StackOverflow = GL_STACK_OVERFLOW
 	};
 
-	enum class QueryMode {
+	enum class QueryMode : GLenum {
 		Wait = GL_QUERY_WAIT,
 		NoWait = GL_QUERY_NO_WAIT,
 		ByRegionWait = GL_QUERY_BY_REGION_WAIT,
@@ -185,7 +226,7 @@ namespace mogl {
 		TimeElapsed = GL_TIME_ELAPSED
 	};
 
-	enum class BufferType {
+	enum class BufferType : GLenum {
 		Array = GL_ARRAY_BUFFER,
 		AtomicCounter = GL_ATOMIC_COUNTER_BUFFER,
 		CopyRead = GL_COPY_READ_BUFFER,
@@ -202,7 +243,14 @@ namespace mogl {
 		Uniform = GL_UNIFORM_BUFFER
 	};
 
-	enum class BufferUsage {
+	enum class IndexedBufferType : GLenum {
+		AtomicCounter = GL_ATOMIC_COUNTER_BUFFER,
+		ShaderStorage = GL_SHADER_STORAGE_BUFFER,
+		TransformFeedback = GL_TRANSFORM_FEEDBACK_BUFFER,
+		Uniform = GL_UNIFORM_BUFFER
+	};
+
+	enum class BufferUsage : GLenum {
 		StaticDraw = GL_STATIC_DRAW,
 		StaticRead = GL_STATIC_READ,
 		StaticCopy = GL_STATIC_COPY,
@@ -214,7 +262,7 @@ namespace mogl {
 		StreamingCopy = GL_STREAM_COPY
 	};
 
-	enum class PrimitiveType {
+	enum class PrimitiveType : GLenum {
 		Points = GL_POINTS,
 		LineStrip = GL_LINE_STRIP,
 		LineLoop = GL_LINE_LOOP,
@@ -229,13 +277,13 @@ namespace mogl {
 		Patches = GL_PATCHES
 	};
 
-	enum class IndiceType {
+	enum class IndiceType : GLenum {
 		UnsignedByte = GL_UNSIGNED_BYTE,
 		UnsignedShort = GL_UNSIGNED_SHORT,
 		UnsignedInt = GL_UNSIGNED_INT
 	};
 
-	enum class VertexType {
+	enum class VertexType : GLenum {
 		Byte = GL_BYTE,
 		UnsignedByte = GL_UNSIGNED_BYTE,
 		Short = GL_SHORT,
@@ -248,13 +296,68 @@ namespace mogl {
 		Fixed = GL_FIXED
 	};
 
-	enum class ShaderType {
+	enum class ShaderType : GLenum {
 		Vertex = GL_VERTEX_SHADER,
 		Geometry = GL_GEOMETRY_SHADER,
 		Fragment = GL_FRAGMENT_SHADER
 	};
 
-	GLbitfield toBitfield(ClearFlags flags) {
+	enum class TextureUnit : GLenum {
+		Texture0 = GL_TEXTURE0,
+		Texture1 = GL_TEXTURE1,
+		Texture2 = GL_TEXTURE2,
+		Texture3 = GL_TEXTURE3,
+		Texture4 = GL_TEXTURE4,
+		Texture5 = GL_TEXTURE5,
+		Texture6 = GL_TEXTURE6,
+		Texture7 = GL_TEXTURE7,
+		Texture8 = GL_TEXTURE8,
+		Texture9 = GL_TEXTURE9,
+		Texture10 = GL_TEXTURE10,
+		Texture11 = GL_TEXTURE11,
+		Texture12 = GL_TEXTURE12,
+		Texture13 = GL_TEXTURE13,
+		Texture14 = GL_TEXTURE14,
+		Texture15 = GL_TEXTURE15,
+		Texture16 = GL_TEXTURE16,
+		Texture17 = GL_TEXTURE17,
+		Texture18 = GL_TEXTURE18,
+		Texture19 = GL_TEXTURE19,
+		Texture20 = GL_TEXTURE20,
+		Texture21 = GL_TEXTURE21,
+		Texture22 = GL_TEXTURE22,
+		Texture23 = GL_TEXTURE23,
+		Texture24 = GL_TEXTURE24,
+		Texture25 = GL_TEXTURE25,
+		Texture26 = GL_TEXTURE26,
+		Texture27 = GL_TEXTURE27,
+		Texture28 = GL_TEXTURE28,
+		Texture29 = GL_TEXTURE29,
+		Texture30 = GL_TEXTURE30,
+		Texture31 = GL_TEXTURE31
+	};
+
+	enum class ObjectType : GLenum {
+		Buffer = GL_BUFFER,
+		Framebuffer = GL_FRAMEBUFFER,
+		Program = GL_PROGRAM,
+		ProgramPipeline = GL_PROGRAM_PIPELINE,
+		Query = GL_QUERY,
+		Renderbuffer = GL_RENDERBUFFER,
+		Sampler = GL_SAMPLER,
+		Shader = GL_SHADER,
+		Texture = GL_TEXTURE,
+		TransformFeedback = GL_TRANSFORM_FEEDBACK,
+		VertexArray = GL_VERTEX_ARRAY
+	};
+
+	enum class TransformFeedbackPrimitiveType : GLenum {
+		Points = GL_POINTS,
+		Lines = GL_LINES,
+		Triangles = GL_TRIANGLES
+	};
+
+	constexpr GLbitfield toBitfield(ClearFlags flags) {
 #ifdef MOGL_LOW_PROFILE
 		return static_cast<GLbitfield>(flags);
 #else
@@ -280,7 +383,7 @@ namespace mogl {
 #endif
 	}
 
-	GLenum toEnum(Face value) {
+	constexpr GLenum toEnum(Face value) {
 #ifdef MOGL_LOW_PROFILE
 		return static_cast<GLenum>(value);
 #else
@@ -294,7 +397,7 @@ namespace mogl {
 #endif
 	}
 
-	GLenum toEnum(PolygonMode value) {
+	constexpr GLenum toEnum(PolygonMode value) {
 #ifdef MOGL_LOW_PROFILE
 		return static_cast<GLenum>(value);
 #else
@@ -307,7 +410,7 @@ namespace mogl {
 #endif
 	}
 
-	GLenum toEnum(Capability value) {
+	constexpr GLenum toEnum(Capability value) {
 #ifdef MOGL_LOW_PROFILE
 		return static_cast<GLenum>(value);
 #else
@@ -350,7 +453,7 @@ namespace mogl {
 #endif
 	}
 
-	GLenum toEnum(DepthFunction value) {
+	constexpr GLenum toEnum(DepthFunction value) {
 #ifdef MOGL_LOW_PROFILE
 		return static_cast<GLenum>(value);
 #else
@@ -369,7 +472,7 @@ namespace mogl {
 #endif
 	}
 
-	GLenum toEnum(BlendScaleFactor value) {
+	constexpr GLenum toEnum(BlendScaleFactor value) {
 #ifdef MOGL_LOW_PROFILE
 		return static_cast<GLenum>(value);
 #else
@@ -399,7 +502,7 @@ namespace mogl {
 #endif
 	}
 
-	GLenum toEnum(PropertyType value) {
+	constexpr GLenum toEnum(PropertyType value) {
 #ifdef MOGL_LOW_PROFILE
 		return static_cast<GLenum>(value);
 #else
@@ -415,7 +518,7 @@ namespace mogl {
 #endif
 	}
 
-	GLenum toEnum(PrimitiveType value) {
+	constexpr GLenum toEnum(PrimitiveType value) {
 #ifdef MOGL_LOW_PROFILE
 		return static_cast<GLenum>(value);
 #else
@@ -438,7 +541,7 @@ namespace mogl {
 #endif
 	}
 
-	GLenum toEnum(IndiceType value) {
+	constexpr GLenum toEnum(IndiceType value) {
 #ifdef MOGL_LOW_PROFILE
 		return static_cast<GLenum>(value);
 #else
@@ -452,7 +555,7 @@ namespace mogl {
 #endif
 	}
 
-	GLenum toEnum(QueryMode value) {
+	constexpr GLenum toEnum(QueryMode value) {
 #ifdef MOGL_LOW_PROFILE
 		return static_cast<GLenum>(value);
 #else
@@ -467,7 +570,7 @@ namespace mogl {
 #endif
 	}
 
-	GLenum toEnum(QueryTarget value) {
+	constexpr GLenum toEnum(QueryTarget value) {
 #ifdef MOGL_LOW_PROFILE
 		return static_cast<GLenum>(value);
 #else
@@ -484,7 +587,7 @@ namespace mogl {
 #endif
 	}
 
-	GLenum toEnum(BufferType value) {
+	constexpr GLenum toEnum(BufferType value) {
 #ifdef MOGL_LOW_PROFILE
 		return static_cast<GLenum>(value);
 #else
@@ -509,7 +612,22 @@ namespace mogl {
 #endif
 	}
 
-	GLenum toEnum(BufferUsage value) {
+	constexpr GLenum toEnum(IndexedBufferType value) {
+#ifdef MOGL_LOW_PROFILE
+		return static_cast<GLenum>(value);
+#else
+		switch (value) {
+			case IndexedBufferType::AtomicCounter:
+			case IndexedBufferType::ShaderStorage:
+			case IndexedBufferType::TransformFeedback:
+			case IndexedBufferType::Uniform:
+				return static_cast<GLenum>(value);
+			default: throw MoglException("Encountered an unknown buffer type.");
+	}
+#endif
+	}
+
+	constexpr GLenum toEnum(BufferUsage value) {
 #ifdef MOGL_LOW_PROFILE
 		return static_cast<GLenum>(value);
 #else
@@ -529,7 +647,7 @@ namespace mogl {
 #endif
 	}
 
-	GLenum toEnum(VertexType value) {
+	constexpr GLenum toEnum(VertexType value) {
 #ifdef MOGL_LOW_PROFILE
 		return static_cast<GLenum>(value);
 #else
@@ -550,7 +668,7 @@ namespace mogl {
 #endif
 	}
 
-	GLenum toEnum(ShaderType value) {
+	constexpr GLenum toEnum(ShaderType value) {
 #ifdef MOGL_LOW_PROFILE
 		return static_cast<GLenum>(value);
 #else
@@ -560,6 +678,85 @@ namespace mogl {
 			case ShaderType::Fragment:
 				return static_cast<GLenum>(value);
 			default: throw MoglException("Encountered an unknown shader type.");
+		}
+#endif
+	}
+
+	constexpr GLenum toEnum(TextureUnit value) {
+#ifdef MOGL_LOW_PROFILE
+		return static_cast<GLenum>(value);
+#else
+		switch (value) {
+			case TextureUnit::Texture0:
+			case TextureUnit::Texture1:
+			case TextureUnit::Texture2:
+			case TextureUnit::Texture3:
+			case TextureUnit::Texture4:
+			case TextureUnit::Texture5:
+			case TextureUnit::Texture6:
+			case TextureUnit::Texture7:
+			case TextureUnit::Texture8:
+			case TextureUnit::Texture9:
+			case TextureUnit::Texture10:
+			case TextureUnit::Texture11:
+			case TextureUnit::Texture12:
+			case TextureUnit::Texture13:
+			case TextureUnit::Texture14:
+			case TextureUnit::Texture15:
+			case TextureUnit::Texture16:
+			case TextureUnit::Texture17:
+			case TextureUnit::Texture18:
+			case TextureUnit::Texture19:
+			case TextureUnit::Texture20:
+			case TextureUnit::Texture21:
+			case TextureUnit::Texture22:
+			case TextureUnit::Texture23:
+			case TextureUnit::Texture24:
+			case TextureUnit::Texture25:
+			case TextureUnit::Texture26:
+			case TextureUnit::Texture27:
+			case TextureUnit::Texture28:
+			case TextureUnit::Texture29:
+			case TextureUnit::Texture30:
+			case TextureUnit::Texture31:
+				return static_cast<GLenum>(value);
+			default: throw MoglException("Encountered an unknown texture unit.");
+		}
+#endif
+	}
+
+	constexpr GLenum toEnum(ObjectType value) {
+#ifdef MOGL_LOW_PROFILE
+		return static_cast<GLenum>(value);
+#else
+		switch (value) {
+			case ObjectType::Buffer:
+			case ObjectType::Framebuffer:
+			case ObjectType::Program:
+			case ObjectType::ProgramPipeline:
+			case ObjectType::Query:
+			case ObjectType::Renderbuffer:
+			case ObjectType::Sampler:
+			case ObjectType::Shader:
+			case ObjectType::Texture:
+			case ObjectType::TransformFeedback:
+			case ObjectType::VertexArray:
+				return static_cast<GLenum>(value);
+			default: throw MoglException("Encountered an unknown object type.");
+		}
+#endif
+	}
+
+	constexpr GLenum toEnum(TransformFeedbackPrimitiveType value) {
+#ifdef MOGL_LOW_PROFILE
+		return static_cast<GLenum>(value);
+#else
+		switch (value) {
+			case TransformFeedbackPrimitiveType::Points:
+			case TransformFeedbackPrimitiveType::Lines:
+			case TransformFeedbackPrimitiveType::Triangles:
+				return static_cast<GLenum>(value);
+			default: throw MoglException("Encountered an unknown primitive type.");
 		}
 #endif
 	}

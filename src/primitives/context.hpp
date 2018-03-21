@@ -10,7 +10,7 @@ namespace mogl {
 	namespace primitives {
 		namespace context {
 			namespace {
-				ErrorType toErrorType(GLenum value) {
+				constexpr ErrorType toErrorType(GLenum value) {
 #ifdef MOGL_LOW_PROFILE
 					return static_cast<ErrorType>(value);
 #else
@@ -31,70 +31,80 @@ namespace mogl {
 				}
 			}
 
-			ErrorType getError() {
+			constexpr ErrorType getError() {
 				auto error = glGetError();
 				return toErrorType(error);
 			}
 
-			void clearColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha = 1.0) {
-				glClearColor(red, green, blue, alpha);
+			constexpr void clearColor(Color color) {
+				glClearColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
 			}
 
-			void clear(ClearFlags flags) {
+			constexpr void clear(ClearFlags flags) {
 				auto flagValues = toBitfield(flags);
 				glClear(flagValues);
 			}
 
-			void setPolygonMode(Face face, PolygonMode mode) {
+			constexpr void setPolygonMode(Face face, PolygonMode mode) {
 				auto faceValue = toEnum(face);
 				auto modeValue = toEnum(mode);
 				glPolygonMode(faceValue, modeValue);
 			}
 
-			void enable(Capability capability) {
+			constexpr void enable(Capability capability) {
 				auto capabilityValue = toEnum(capability);
 				glEnable(capabilityValue);
 			}
 
-			void disable(Capability capability) {
+			constexpr void disable(Capability capability) {
 				auto capabilityValue = toEnum(capability);
 				glDisable(capabilityValue);
 			}
 
-			bool isEnabled(Capability capability) {
+			constexpr bool isEnabled(Capability capability) {
 				auto capabilityValue = toEnum(capability);
 				return glIsEnabled(capabilityValue) == GL_TRUE;
 			}
 
-			void setDepthFunction(DepthFunction function) {
+			constexpr void setDepthFunction(DepthFunction function) {
 				auto functionValue = toEnum(function);
 				glDepthFunc(functionValue);
 			}
 
-			void setBlendFunction(BlendScaleFactor sourceFactor, BlendScaleFactor destinationFactor) {
+			constexpr void setBlendFunction(BlendScaleFactor sourceFactor, BlendScaleFactor destinationFactor) {
 				auto sourceValue = toEnum(sourceFactor);
 				auto destinationValue = toEnum(destinationFactor);
 				glBlendFunc(sourceValue, destinationValue);
 			}
 
-			std::string getString(PropertyType property) {
-				auto detailValue = toEnum(property);
-				auto const* rawResult = glGetString(detailValue);
-				auto const* result = reinterpret_cast<char const*>(rawResult);
-				return std::string(result);
+			constexpr void setBlendColor(Color color) {
+				glBlendColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
 			}
 
-			void drawElements(PrimitiveType primitiveType, GLsizei size, IndiceType indiceType, GLvoid const* indices) {
+			Color getBlendColor() {
+				GLfloat parts[4];
+				glGetFloatv(GL_BLEND_COLOR, parts);
+				return Color{ parts[0], parts[1], parts[2], parts[3] };
+			}
+
+			inline std::string getString(PropertyType property) {
+				auto detailValue = toEnum(property);
+				GLubyte const* rawResult = glGetString(detailValue);
+				char const* result = reinterpret_cast<char const*>(rawResult);
+				return std::string{ result };
+			}
+
+			constexpr void drawElements(PrimitiveType primitiveType, GLsizei size, IndiceType indiceType, GLvoid const* indices) {
 				auto elementTypeValue = toEnum(primitiveType);
 				auto indiceTypeValue = toEnum(indiceType);
 				glDrawElements(elementTypeValue, size, indiceTypeValue, indices);
 			}
 
-			void setViewport(Viewport viewPort) {
+			constexpr void setViewport(Viewport viewPort) {
 				glViewport(viewPort.getX(), viewPort.getY(), viewPort.getWidth(), viewPort.getHeight());
 			}
 
-			Viewport getViewport() {
+			Viewport const getViewport() {
 				GLint coordinates[4];
 				glGetIntegerv(GL_VIEWPORT, coordinates);
 				return mogl::Viewport(coordinates[0], coordinates[1], coordinates[2], coordinates[3]);

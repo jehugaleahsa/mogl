@@ -11,12 +11,12 @@ namespace mogl {
 	namespace primitives {
 		namespace shader {
 
-			auto create(ShaderType shaderType) {
+			constexpr auto create(ShaderType shaderType) {
 				auto typeValue = toEnum(shaderType);
 				return glCreateShader(typeValue);
 			}
 
-			bool isShader(GLuint shaderId) {
+			constexpr bool isShader(GLuint shaderId) {
 				return glIsShader(shaderId) == GL_TRUE;
 			}
 
@@ -61,11 +61,11 @@ namespace mogl {
 				return result;
 			}
 
-			void reclaim(GLuint shaderId) {
+			constexpr void reclaim(GLuint shaderId) {
 				glDeleteShader(shaderId);
 			}
 
-			void setSource(GLuint shaderId, char const* source) {
+			constexpr void setSource(GLuint shaderId, char const* source) {
 				glShaderSource(shaderId, 1, &source, nullptr);
 			}
 
@@ -75,7 +75,7 @@ namespace mogl {
 				glShaderSource(shaderId, 1, &sourcePtr, &length);
 			}
 
-			void compile(GLuint shaderId) {
+			constexpr void compile(GLuint shaderId) {
 				glCompileShader(shaderId);
 			}
 

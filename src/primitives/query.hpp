@@ -7,27 +7,37 @@
 namespace mogl {
 	namespace primitives {
 		namespace query {
-			bool isQuery(GLuint queryId) {
+			constexpr bool isQuery(GLuint queryId) {
 				return glIsQuery(queryId) == GL_TRUE;
 			}
 
-			void beginConditionalRender(GLuint queryId, QueryMode mode) {
+			constexpr void beginConditionalRender(GLuint queryId, QueryMode mode) {
 				auto modeValue = toEnum(mode);
 				glBeginConditionalRender(queryId, modeValue);
 			}
 
-			void endConditionalRender() {
+			constexpr void endConditionalRender() {
 				glEndConditionalRender();
 			}
 
-			void beginQuery(QueryTarget target, GLuint queryId) {
+			constexpr void beginQuery(QueryTarget target, GLuint queryId) {
 				auto targetValue = toEnum(target);
 				glBeginQuery(targetValue, queryId);
 			}
 
-			void endQuery(QueryTarget target) {
+			constexpr void endQuery(QueryTarget target) {
 				auto targetValue = toEnum(target);
 				glEndQuery(targetValue);
+			}
+
+			constexpr void beginQueryIndexed(QueryTarget target, GLuint index, GLuint queryId) {
+				auto targetValue = toEnum(target);
+				glBeginQueryIndexed(targetValue, index, queryId);
+			}
+
+			constexpr void endQueryIndexed(QueryTarget target, GLuint index) {
+				auto targetValue = toEnum(target);
+				glEndQueryIndexed(targetValue, index);
 			}
 		}  // query
 	}  // primitives

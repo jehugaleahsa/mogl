@@ -14,17 +14,12 @@ namespace mogl {
 	namespace primitives {
 		namespace program {
 
-			auto create() {
+			constexpr auto create() {
 				auto result = glCreateProgram();
-#ifndef MOGL_LOW_PROFILE
-				if (result == 0) {
-					throw MoglException("Could not create the shader program.");
-				}
-#endif
 				return result;
 			}
 
-			bool isProgram(GLuint programId) {
+			constexpr bool isProgram(GLuint programId) {
 				return glIsProgram(programId) == GL_TRUE;
 			}
 
@@ -40,10 +35,18 @@ namespace mogl {
 				return status == GL_TRUE;
 			}
 
+			constexpr void link(GLuint programId) {
+				glLinkProgram(programId);
+			}
+
 			bool isValid(GLuint programId) {
 				GLint status;
 				glGetProgramiv(programId, GL_VALIDATE_STATUS, &status);
 				return status == GL_TRUE;
+			}
+
+			constexpr void validate(GLuint programId) {
+				glValidateProgram(programId);
 			}
 
 			auto getInformationLogLength(GLuint programId) {
@@ -95,10 +98,9 @@ namespace mogl {
 
 			std::vector<GLuint> getAttachedShaders(GLuint programId) {
 				auto count = getAttachedShaderCount(programId);
-				std::unique_ptr<GLuint[]> data{ new GLuint[count] };
-				glGetAttachedShaders(programId, count, nullptr, data.get());
-				std::vector<GLuint> result(data.get(), data.get() + count);
-				return result;
+				std::vector<GLuint> data(count);
+				glGetAttachedShaders(programId, count, nullptr, data.data());
+				return data;
 			}
 
 			bool isShaderAttached(GLuint programId, GLuint shaderId) {
@@ -109,9 +111,26 @@ namespace mogl {
 				return it != cend(shaderIds);
 			}
 
-			void attachShader(GLuint programId, GLuint shaderId) {
+			constexpr void attachShader(GLuint programId, GLuint shaderId) {
 				glAttachShader(programId, shaderId);
 			}
+
+			constexpr void bindAttributeLocation(GLuint programId, GLuint index, std::string const& name) {
+				glBindAttribLocation(programId, index, name.c_str());
+			}
+
+			constexpr void use(GLuint programId) {
+				glUseProgram(programId);
+			}
+
+			constexpr auto getAttributeId(GLuint programId, std::string const& name) {
+				return glGetAttribLocation(programId, name.c_str());
+			}
+
+			constexpr auto getUniformId(GLuint programId, std::string const& name) {
+				return glGetUniformLocation(programId, name.c_str());
+			}
+
 		}  // program
 	}  // primitives
 }  // mogl
